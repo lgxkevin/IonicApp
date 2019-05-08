@@ -8,10 +8,13 @@
 
 <ion-content>
   <div class="ion-padding">
-    {{text}}
-    <ion-button (click)="changeText()">Change Text</ion-button>
-    <ion-button (click)="changeText2()">Change test2</ion-button>
-    Testing changes
+    <ion-button (click)="checkIn()" expand = "full" fill = "outline">Show Location</ion-button>
     <p>If you get lost, the <a target="_blank" rel="noopener" href="https://ionicframework.com/docs/">docs</a> will be your guide.</p>
+  </div>
+  <div class="ion-padding">
+    <ion-text color="secondary">
+      Locations: <br>
+      {{location}}
+    </ion-text>  
   </div>
 </ion-content>
