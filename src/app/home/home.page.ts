@@ -10,6 +10,7 @@ import { async } from 'q';
 export class HomePage {
   location: string;
   checkInPlace = [-36.9135302, 174.8724183];
+  awayDistance = 0;
   constructor(private geolocation: Geolocation) {
   //   if (navigator.geolocation) {
   //     navigator.geolocation.getCurrentPosition((res) => {
@@ -67,9 +68,9 @@ export class HomePage {
     Math.sin(dy / 2) * Math.sin(dy / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     const distance = R * c;
-    console.log(distance);
+    this.awayDistance = distance * 1000;
+    console.log(`${distance * 1000} metre`);
     return true;
-
     // if (xDistance === 0 && yDistance === 0) {
     //   return true;
     // }
