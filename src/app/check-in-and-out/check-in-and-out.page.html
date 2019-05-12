@@ -1,10 +1,12 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title *ngIf="pageName == 'checkIn'">check in</ion-title>
-    <ion-title *ngIf="pageName == 'checkOut'">check out</ion-title>
-    <ion-menu-toggle>
-      <ion-button>Toggle Menu</ion-button>
-    </ion-menu-toggle>
+    <ion-title>
+      <ion-menu-toggle>
+          <ion-button><i class="fas fa-bars"></i></ion-button>
+        </ion-menu-toggle>
+      <span *ngIf="pageName == 'checkIn'"> check in</span>
+      <span *ngIf="pageName == 'checkOut'"> check out</span>
+    </ion-title>
   </ion-toolbar>
 </ion-header>
 

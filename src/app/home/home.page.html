@@ -1,14 +1,20 @@
 <ion-header>
   <ion-toolbar>
     <ion-title>
+    <ion-menu-toggle>
+        <ion-button><i class="fas fa-bars"></i></ion-button>
+      </ion-menu-toggle>
       Login Page
     </ion-title>
-    <ion-menu-toggle>
-        <ion-button>Toggle Menu</ion-button>
-      </ion-menu-toggle>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
-  Welcome to our app!
+  Welcome to our app!<br/>
+  Login<br/>
+  Username:<br/>
+  <ion-input type = 'text' inputmode = 'text' [(ngModel)]="username" required = 'true'></ion-input>
+  Password:<br/>
+  <ion-input type = 'password' inputmode = 'password'  [(ngModel)]="password" required = 'true'></ion-input>
+  <ion-button (click)="loginCheck()" fil="outline" size="small" color="success">Login</ion-button>
 </ion-content>
