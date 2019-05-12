@@ -1,0 +1,23 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title *ngIf="pageName == 'checkIn'">check in</ion-title>
+    <ion-title *ngIf="pageName == 'checkOut'">check out</ion-title>
+    <ion-menu-toggle>
+      <ion-button>Toggle Menu</ion-button>
+    </ion-menu-toggle>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+    <div class="ion-padding">
+    <ion-button (click)="checkIn()" expand = "full" fill = "outline">Show Location</ion-button>
+    <p>If you get lost, the <a target="_blank" rel="noopener" href="https://ionicframework.com/docs/">docs</a> will be your guide.</p>
+  </div>
+  <div class="ion-padding">
+    <ion-text color="secondary">
+      Locations: <br>
+      {{location}}
+    </ion-text>  
+    <div *ngIf="awayDistance != 0"> Distance is {{awayDistance}} metres.</div>
+  </div>
+</ion-content>
