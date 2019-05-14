@@ -1,25 +1,60 @@
 <ion-header>
   <ion-toolbar>
     <ion-title>
-      <ion-menu-toggle>
-          <ion-button><i class="fas fa-bars"></i></ion-button>
-        </ion-menu-toggle>
-      <span *ngIf="pageName == 'checkIn'"> check in</span>
-      <span *ngIf="pageName == 'checkOut'"> check out</span>
+      <ion-row>
+          <ion-col size = '3'>
+              <ion-menu-toggle>
+                  <ion-button color = 'light'><ion-icon name="apps"></ion-icon></ion-button>
+              </ion-menu-toggle>
+          </ion-col>
+          <ion-col size = '9' class = 'ion-padding-top'>
+              <span *ngIf="pageName == 'checkIn'"> check in</span>
+              <span *ngIf="pageName == 'checkOut'"> check out</span>        
+          </ion-col>
+        </ion-row>
     </ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
     <div class="ion-padding">
-    <ion-button (click)="checkIn()" expand = "full" fill = "outline">Show Location</ion-button>
-    <p>If you get lost, the <a target="_blank" rel="noopener" href="https://ionicframework.com/docs/">docs</a> will be your guide.</p>
+      <div class = 'ion-padding ion-text-center'>{{currentTime}}</div>
+    <ion-button *ngIf="pageName == 'checkIn'" (click)="checkIn('In')" expand = "full" fill = "outline">
+        <span *ngIf="pageName == 'checkIn'"> check in</span>
+      </ion-button>
+    <ion-button *ngIf="pageName == 'checkOut'" (click)="checkIn('Out')" expand = "full" fill = "outline">
+        <span> check out</span>
+      </ion-button>
+    <span style='font-size:12px;' class="ion-padding">*Please use mobile network to check in or check out.</span>
   </div>
-  <div class="ion-padding">
+  <!-- <div class="ion-padding">
     <ion-text color="secondary">
       Locations: <br>
       {{location}}
     </ion-text>  
     <div *ngIf="awayDistance != 0"> Distance is {{awayDistance}} metres.</div>
-  </div>
+  </div> -->
+  <!-- check in history list -->
+  <ion-list *ngIf="checkInHistory && pageName == 'checkIn'">
+      <ion-item-sliding *ngFor="let history of checkInHistory, index as i">
+        <ion-item>  
+          <ion-label>{{history}}</ion-label>
+        </ion-item>
+        <ion-item-options side="end">
+          <ion-item-option (click)="deleteCheckInHistory(i)" color = 'danger'><ion-icon name="trash"></ion-icon></ion-item-option>
+        </ion-item-options>
+      </ion-item-sliding>
+    </ion-list>
+  <!-- check out history list -->
+    <ion-list *ngIf="checkInHistory && pageName == 'checkOut'">
+        <ion-item-sliding *ngFor="let history of checkOutHistory, index as i">
+          <ion-item>  
+            <ion-label>{{history}}</ion-label>
+          </ion-item>
+          <ion-item-options side="end">
+            <ion-item-option (click)="deleteCheckOutHistory(i)" color = 'danger'><ion-icon name="trash"></ion-icon></ion-item-option>
+          </ion-item-options>
+        </ion-item-sliding>
+      </ion-list>
+
 </ion-content>

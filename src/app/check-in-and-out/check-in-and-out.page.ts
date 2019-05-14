@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { Geolocation } from '@ionic-native/geolocation/ngx';
 import { ActivatedRoute } from '@angular/router';
+import { ToastController } from '@ionic/angular';
+import * as moment from 'moment';
 
 @Component({
   selector: 'app-check-in-and-out',
@@ -12,10 +14,14 @@ export class CheckInAndOutPage implements OnInit {
   checkInPlace = [-36.9135302, 174.8724183];
   awayDistance = 0;
   pageName: string;
-
+  checkInHistory = [];
+  checkOutHistory = [];
+  currentTime: string;
   constructor(
     private geolocation: Geolocation,
-    private route: ActivatedRoute) {}
+    private route: ActivatedRoute,
+    public toastController: ToastController) {
+    }
 
   ngOnInit() {
     this.route.params.subscribe(
@@ -23,26 +29,29 @@ export class CheckInAndOutPage implements OnInit {
         this.pageName = this.route.snapshot.data.some_data;
       }
     );
+    this.currentTime = moment().format('dddd, MMMM Do YYYY');
   }
 
-  async checkIn() {
-    // const positionArray = this.getLocation();
+  async checkIn(action: string) {
       const positionArray = [];
+      // Get current user position
       await this.geolocation.getCurrentPosition({enableHighAccuracy: true}).then((res) => {
-        const x = res.coords.latitude;
-        positionArray.push(x);
-        const y = res.coords.longitude;
-        positionArray.push(y);
+        positionArray.push(res.coords.latitude);
+        positionArray.push(res.coords.longitude);
         const acc = res.coords.accuracy;
         console.log('acc: ', acc);
       }).catch((error) => {
         console.log(error);
       });
 
-      if (this.checkLocation(positionArray[0], positionArray[1])) {
-        console.log('CheckInSuccess');
+      if (this.checkLocation(positionArray[0], positionArray[1]) && action === 'In') {
+        // user is in the location
+        this.checkInFeedback(1);
+        // this.checkInHistory.push(`Check in at ${moment().format('MMMM Do YYYY, h:mm:ss a')}`);
       } else {
-        console.log('CheckInFailed');
+        this.checkInFeedback(3);
+        // user is not in the location
+        // this.checkInFeedback('Check in failed');
       }
     }
 
@@ -57,18 +66,56 @@ export class CheckInAndOutPage implements OnInit {
       const distance = R * c;
       this.awayDistance = distance * 1000;
       console.log(`${distance * 1000} metre`);
-      // TODO : determine whether checkIn is successfully
       return true;
-      // if (xDistance === 0 && yDistance === 0) {
+      // if (this.awayDistance === 0) {
       //   return true;
       // }
-      // const radiusDistance = Math.sqrt(xDistance * xDistance + yDistance * yDistance);
-      // console.log('radiusDistance, ', radiusDistance);
-      // if (radiusDistance < 100) {
+      // if (this.awayDistance < 300) {
       //   return true;
       // } else {
       //   return false;
       // }
     }
 
+    feedbackMessage(status: number): string {
+      switch (status) {
+        case 1: {
+          return 'Check in successfully';
+        }
+        case 2: {
+          return 'Check in failed';
+        }
+        case 3: {
+          return 'Check out successfully';
+        }
+        case 4: {
+          return 'Check out failed';
+        }
+      }
+    }
+
+    async checkInFeedback(status: number) {
+      const feedbackMessage = this.feedbackMessage(status);
+      let toastColor: string;
+      if (status === 1 || status === 3) {
+        toastColor = 'success';
+      } else {
+        toastColor = 'danger';
+      }
+      const toast = await this.toastController.create({
+        message: feedbackMessage,
+        duration: 1500,
+        color: toastColor
+      });
+      toast.present();
+    }
+
+    deleteCheckInHistory(i: number) {
+      console.log('i', i);
+      this.checkInHistory.splice(i, 1);
+    }
+    deleteCheckOutHistory(i: number) {
+      console.log('i', i);
+      this.checkOutHistory.splice(i, 1);
+    }
 }

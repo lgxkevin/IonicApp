@@ -38,7 +38,7 @@ export class HomePage {
     }
     const toast = await this.toastController.create({
       message: feedbackMessage,
-      duration: 2000,
+      duration: 1500,
       color: toastColor
     });
     toast.present();
