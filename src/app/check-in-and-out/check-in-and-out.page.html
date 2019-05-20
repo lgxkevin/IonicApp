@@ -19,10 +19,10 @@
 <ion-content>
     <div class="ion-padding">
       <div class = 'ion-padding ion-text-center'>{{currentTime}}</div>
-    <ion-button *ngIf="pageName == 'checkIn'" (click)="checkIn('In')" expand = "full" fill = "outline">
+    <ion-button *ngIf="pageName == 'checkIn'" (click)="checkMain('In')" expand = "full" fill = "outline">
         <span *ngIf="pageName == 'checkIn'"> check in</span>
       </ion-button>
-    <ion-button *ngIf="pageName == 'checkOut'" (click)="checkIn('Out')" expand = "full" fill = "outline">
+    <ion-button *ngIf="pageName == 'checkOut'" (click)="checkMain('Out')" expand = "full" fill = "outline">
         <span> check out</span>
       </ion-button>
     <span style='font-size:12px;' class="ion-padding">*Please use mobile network to check in or check out.</span>

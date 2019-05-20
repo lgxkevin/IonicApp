@@ -13,8 +13,7 @@ export class HomePage {
   isLoginSuccess: boolean;
   constructor(
     public toastController: ToastController
-  ) {
-  }
+  ) { }
 
   loginCheck() {
     console.log(`Username: ${this.username},password: ${this.password}`);
@@ -43,4 +42,4 @@ export class HomePage {
     });
     toast.present();
   }
-}
+  }

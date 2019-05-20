@@ -1,8 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { Geolocation } from '@ionic-native/geolocation/ngx';
 import { ActivatedRoute } from '@angular/router';
+import { Plugins } from '@capacitor/core';
+import { Geolocation } from '@ionic-native/geolocation/ngx';
 import { ToastController } from '@ionic/angular';
 import * as moment from 'moment';
+
+const { Storage }  = Plugins;
 
 @Component({
   selector: 'app-check-in-and-out',
@@ -32,7 +35,7 @@ export class CheckInAndOutPage implements OnInit {
     this.currentTime = moment().format('dddd, MMMM Do YYYY');
   }
 
-  async checkIn(action: string) {
+  async checkMain(action: string) {
       const positionArray = [];
       // Get current user position
       await this.geolocation.getCurrentPosition({enableHighAccuracy: true}).then((res) => {
@@ -44,17 +47,40 @@ export class CheckInAndOutPage implements OnInit {
         console.log(error);
       });
 
-      if (this.checkLocation(positionArray[0], positionArray[1]) && action === 'In') {
-        // user is in the location
-        this.checkInFeedback(1);
+      const isPositionValid = this.checkLocation(positionArray[0], positionArray[1]);
+      if (action === 'In') {
+        this.checkInFilter(isPositionValid);
         // this.checkInHistory.push(`Check in at ${moment().format('MMMM Do YYYY, h:mm:ss a')}`);
-      } else {
-        this.checkInFeedback(3);
-        // user is not in the location
-        // this.checkInFeedback('Check in failed');
+      }
+      if (action === 'Out') {
+        this.checkOutFilter(isPositionValid);
       }
     }
 
+    checkInFilter(isPositionValid) {
+      if (isPositionValid) {
+        this.checkInFeedback(1);
+      }
+      if (!isPositionValid) {
+        this.checkInFeedback(3);
+      }
+      // find the latest checkIn date and compare with the current time, if <1 day, case 5
+    }
+
+    checkOutFilter(isPositionValid) {
+      if (isPositionValid) {
+        this.checkInFeedback(2);
+      }
+      if (!isPositionValid) {
+        this.checkInFeedback(4);
+      }
+      // find the latest checkOut date and compare with the current time, if <1 day, case 6
+
+      // find the latest check record and compare with the current time, if >1 day, case 7
+
+    }
+
+    // TODO always return true
     checkLocation(x, y): boolean {
       const R = 6371;
       const dx = (this.checkInPlace[0] - x) * Math.PI / 180 ;
@@ -83,13 +109,22 @@ export class CheckInAndOutPage implements OnInit {
           return 'Check in successfully';
         }
         case 2: {
-          return 'Check in failed';
-        }
-        case 3: {
           return 'Check out successfully';
         }
+        case 3: {
+          return 'Check in failed. You are out of location.';
+        }
         case 4: {
-          return 'Check out failed';
+          return 'Check out failed. You are out of location.';
+        }
+        case 5: {
+          return 'You have already checked in.';
+        }
+        case 6: {
+          return 'You have already checked out.';
+        }
+        case 7: {
+          return 'Please Check in before you check out';
         }
       }
     }
@@ -97,7 +132,7 @@ export class CheckInAndOutPage implements OnInit {
     async checkInFeedback(status: number) {
       const feedbackMessage = this.feedbackMessage(status);
       let toastColor: string;
-      if (status === 1 || status === 3) {
+      if (status === 1 || status === 2) {
         toastColor = 'success';
       } else {
         toastColor = 'danger';
@@ -118,4 +153,24 @@ export class CheckInAndOutPage implements OnInit {
       console.log('i', i);
       this.checkOutHistory.splice(i, 1);
     }
+
+  // set check time in storage
+  // status: checkIn/checkOut; time: checkIn/checkOut time
+  async storeTime(status: string, time) {
+      const checkStatus = status;
+      const checkTime = time;
+      await Storage.set({
+        key: 'checkHistory',
+        value: JSON.stringify({
+          status: checkStatus,
+          time: checkTime
+        })
+      });
+      this.getTime();
+    }
+  async getTime() {
+    const ret = await Storage.get({ key: 'user' });
+    const user = JSON.parse(ret.value);
+    console.log(user);
+  }
 }
