@@ -20,6 +20,7 @@ export class CheckInAndOutPage implements OnInit {
   checkInHistory = [];
   checkOutHistory = [];
   currentTime: string;
+  checkList = [];
   constructor(
     private geolocation: Geolocation,
     private route: ActivatedRoute,
@@ -33,6 +34,7 @@ export class CheckInAndOutPage implements OnInit {
       }
     );
     this.currentTime = moment().format('dddd, MMMM Do YYYY');
+    this.getTime();
   }
 
   async checkMain(action: string) {
@@ -57,19 +59,22 @@ export class CheckInAndOutPage implements OnInit {
       }
     }
 
-    checkInFilter(isPositionValid) {
+    checkInFilter(isPositionValid: boolean) {
       if (isPositionValid) {
         this.checkInFeedback(1);
+        this.storeTime('checkIn', moment().format('MMMM Do YYYY, h:mm:ss a'));
       }
       if (!isPositionValid) {
         this.checkInFeedback(3);
       }
       // find the latest checkIn date and compare with the current time, if <1 day, case 5
+
     }
 
-    checkOutFilter(isPositionValid) {
+    checkOutFilter(isPositionValid: boolean) {
       if (isPositionValid) {
         this.checkInFeedback(2);
+        this.storeTime('checkOut', moment().format('MMMM Do YYYY, h:mm:ss a'));
       }
       if (!isPositionValid) {
         this.checkInFeedback(4);
@@ -156,21 +161,27 @@ export class CheckInAndOutPage implements OnInit {
 
   // set check time in storage
   // status: checkIn/checkOut; time: checkIn/checkOut time
-  async storeTime(status: string, time) {
-      const checkStatus = status;
-      const checkTime = time;
-      await Storage.set({
-        key: 'checkHistory',
-        value: JSON.stringify({
-          status: checkStatus,
-          time: checkTime
-        })
-      });
-      this.getTime();
+  async storeTime(status: string, time: string) {
+    this.getTime();
+    const checkStatus = status;
+    const checkTime = time;
+    const item = {
+      status: checkStatus,
+      time: checkTime
+    };
+    this.checkList.push(item);
+    await Storage.set({
+      key: 'checkHistory',
+      value: JSON.stringify(this.checkList)
+    });
     }
   async getTime() {
-    const ret = await Storage.get({ key: 'user' });
-    const user = JSON.parse(ret.value);
-    console.log(user);
+    const ret = await Storage.get({ key: 'checkHistory' });
+    const storageData = JSON.parse(ret.value);
+    if (storageData) {
+      this.checkList = storageData;
+    } else {
+      this.checkList = [];
+    }
   }
 }
