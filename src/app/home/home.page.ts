@@ -1,5 +1,9 @@
 import { Component } from '@angular/core';
 import { ToastController } from '@ionic/angular';
+import {GeneralService} from '../service/general.service';
+import { Plugins } from '@capacitor/core';
+
+const { Storage }  = Plugins;
 
 @Component({
   selector: 'app-home',
@@ -12,20 +16,32 @@ export class HomePage {
   password: string;
   isLoginSuccess: boolean;
   constructor(
-    public toastController: ToastController
+    public toastController: ToastController,
+    public generalService: GeneralService
   ) { }
+  ngOnInit() {}
 
   loginCheck() {
+    const user = {
+      username: this.username,
+      password: this.password
+    };
     console.log(`Username: ${this.username},password: ${this.password}`);
-    if (this.username === 'kevin' && this.password === 'qwer1234') {
-      console.log('Login successfully');
-      this.isLoginSuccess = true;
-      this.presentToast('Login successfully');
-    } else {
-      console.log('Login error');
-      this.isLoginSuccess = false;
-      this.presentToast('Login error');
-    }
+    this.generalService.userLogin(user).subscribe(
+      (res) => {
+        this.isLoginSuccess = true;
+        this.presentToast('Login successfully');
+        Storage.set({
+          key: 'userId',
+          value: JSON.stringify(res['Data'].userid)
+        });
+      }, (error) => {
+        console.log(error);
+        this.isLoginSuccess = false;
+        this.presentToast('Login error');
+
+      }
+    );
   }
   async presentToast(message: string) {
     const feedbackMessage = message;

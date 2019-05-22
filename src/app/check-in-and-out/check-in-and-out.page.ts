@@ -3,6 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { Plugins } from '@capacitor/core';
 import { Geolocation } from '@ionic-native/geolocation/ngx';
 import { ToastController } from '@ionic/angular';
+import { GeneralService } from '../../app/service/general.service';
 import * as moment from 'moment';
 
 const { Storage }  = Plugins;
@@ -19,12 +20,17 @@ export class CheckInAndOutPage implements OnInit {
   pageName: string;
   checkInHistory = [];
   checkOutHistory = [];
-  currentTime: string;
   checkList = [];
+  logModel = {
+    UserId: null,
+    LogType: null,
+    CreateAt: null
+  };
   constructor(
     private geolocation: Geolocation,
     private route: ActivatedRoute,
-    public toastController: ToastController) {
+    public toastController: ToastController,
+    public generalService: GeneralService) {
     }
 
   ngOnInit() {
@@ -33,8 +39,9 @@ export class CheckInAndOutPage implements OnInit {
         this.pageName = this.route.snapshot.data.some_data;
       }
     );
-    this.currentTime = moment().format('dddd, MMMM Do YYYY');
-    this.getTime();
+    this.getTime().then( data => this.checkList = data);
+
+    this.logModel.UserId = Storage.get({ key: 'userid' });
   }
 
   async checkMain(action: string) {
@@ -52,7 +59,6 @@ export class CheckInAndOutPage implements OnInit {
       const isPositionValid = this.checkLocation(positionArray[0], positionArray[1]);
       if (action === 'In') {
         this.checkInFilter(isPositionValid);
-        // this.checkInHistory.push(`Check in at ${moment().format('MMMM Do YYYY, h:mm:ss a')}`);
       }
       if (action === 'Out') {
         this.checkOutFilter(isPositionValid);
@@ -60,21 +66,39 @@ export class CheckInAndOutPage implements OnInit {
     }
 
     checkInFilter(isPositionValid: boolean) {
+      let lastCheckIn: string;
+      this.logModel.LogType = 0;
+      this.logModel.CreateAt = moment().toDate();
       if (isPositionValid) {
         this.checkInFeedback(1);
-        this.storeTime('checkIn', moment().format('MMMM Do YYYY, h:mm:ss a'));
+        // this.storeTime('checkIn', moment().format('MMMM Do YYYY, h:mm:ss a'));
+        // successfully checkIn
+        this.generalService.addLoginLog(this.logModel).subscribe(
+          (res) => {
+            console.log(res);
+          }, (error) => {
+            console.log(error);
+          }
+        );
       }
       if (!isPositionValid) {
         this.checkInFeedback(3);
       }
       // find the latest checkIn date and compare with the current time, if <1 day, case 5
-
+      for (let i = this.checkList.length - 1; i >= 0; i--) {
+        if (this.checkList[i].status === 'checkIn') {
+          lastCheckIn = this.checkList[i].time;
+          break;
+        }
+      }
+      // if (lastCheckIn)
     }
 
     checkOutFilter(isPositionValid: boolean) {
       if (isPositionValid) {
         this.checkInFeedback(2);
-        this.storeTime('checkOut', moment().format('MMMM Do YYYY, h:mm:ss a'));
+        // successfully checkOut
+
       }
       if (!isPositionValid) {
         this.checkInFeedback(4);
@@ -179,9 +203,9 @@ export class CheckInAndOutPage implements OnInit {
     const ret = await Storage.get({ key: 'checkHistory' });
     const storageData = JSON.parse(ret.value);
     if (storageData) {
-      this.checkList = storageData;
+      return storageData;
     } else {
-      this.checkList = [];
+     return [];
     }
   }
 }
