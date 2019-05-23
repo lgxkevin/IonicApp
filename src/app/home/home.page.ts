@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { ToastController } from '@ionic/angular';
 import {GeneralService} from '../service/general.service';
 import { Plugins } from '@capacitor/core';
+import { JsonPipe } from '@angular/common';
 
 const { Storage }  = Plugins;
 
@@ -19,7 +20,13 @@ export class HomePage {
     public toastController: ToastController,
     public generalService: GeneralService
   ) { }
-  ngOnInit() {}
+  ngOnInit() {
+    this.getUserId().then((data) => {
+      if (data) {
+        this.isLoginSuccess = true;
+      }
+    });
+  }
 
   loginCheck() {
     const user = {
@@ -57,5 +64,13 @@ export class HomePage {
       color: toastColor
     });
     toast.present();
+  }
+  async getUserId() {
+    const userId = await Storage.get({ key: 'userId' });
+    if (userId) {
+      return JSON.parse(userId.value);
+    } else {
+      return null;
+    }
   }
   }

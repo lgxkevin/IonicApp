@@ -24,7 +24,7 @@ export class CheckInAndOutPage implements OnInit {
   logModel = {
     UserId: null,
     LogType: null,
-    CreateAt: null
+    CreatedAt: null
   };
   constructor(
     private geolocation: Geolocation,
@@ -39,9 +39,7 @@ export class CheckInAndOutPage implements OnInit {
         this.pageName = this.route.snapshot.data.some_data;
       }
     );
-    this.getTime().then( data => this.checkList = data);
-
-    this.logModel.UserId = Storage.get({ key: 'userid' });
+    this.getUserId().then( data => this.logModel.UserId = data);
   }
 
   async checkMain(action: string) {
@@ -68,14 +66,15 @@ export class CheckInAndOutPage implements OnInit {
     checkInFilter(isPositionValid: boolean) {
       let lastCheckIn: string;
       this.logModel.LogType = 0;
-      this.logModel.CreateAt = moment().toDate();
-      if (isPositionValid) {
-        this.checkInFeedback(1);
+      this.logModel.CreatedAt = moment.utc().format();
+      let isCheckInTimeValid = this.checkTimeFilter(0);
+      if (isPositionValid && isCheckInTimeValid) {
         // this.storeTime('checkIn', moment().format('MMMM Do YYYY, h:mm:ss a'));
         // successfully checkIn
         this.generalService.addLoginLog(this.logModel).subscribe(
           (res) => {
             console.log(res);
+            this.checkInFeedback(1);
           }, (error) => {
             console.log(error);
           }
@@ -84,28 +83,48 @@ export class CheckInAndOutPage implements OnInit {
       if (!isPositionValid) {
         this.checkInFeedback(3);
       }
-      // find the latest checkIn date and compare with the current time, if <1 day, case 5
-      for (let i = this.checkList.length - 1; i >= 0; i--) {
-        if (this.checkList[i].status === 'checkIn') {
-          lastCheckIn = this.checkList[i].time;
-          break;
-        }
-      }
-      // if (lastCheckIn)
     }
 
+    // find the latest checkIn date and compare with the current time, if <1 day, case 5
+
+    // find the latest checkOut date and compare with the current time, if <1 day, case 6
+
+     // find the latest check record and compare with the current time, if >1 day, case 7
+    checkTimeFilter(status: number) {
+      this.generalService.addLoginLog(status).subscribe(
+        (res) => {
+        const lackCheckInTime = res['Data'].CreatedAt;
+        lackCheckInTime.diff(moment.utc().format(), 'days');
+        if (lackCheckInTime > 1) {
+          return true;
+        } else {
+          this.checkInFeedback(5);
+          return false;
+        }
+      }, (error) => {
+        return false;
+        console.log(error);
+      });
+      return true;
+    }
     checkOutFilter(isPositionValid: boolean) {
+      this.logModel.LogType = 0;
+      this.logModel.CreatedAt = moment.utc().format();
       if (isPositionValid) {
-        this.checkInFeedback(2);
         // successfully checkOut
+        this.generalService.addLoginLog(this.logModel).subscribe(
+          (res) => {
+            console.log(res);
+            this.checkInFeedback(2);
+          }, (error) => {
+            console.log(error);
+          }
+        );
 
       }
       if (!isPositionValid) {
         this.checkInFeedback(4);
       }
-      // find the latest checkOut date and compare with the current time, if <1 day, case 6
-
-      // find the latest check record and compare with the current time, if >1 day, case 7
 
     }
 
@@ -185,27 +204,27 @@ export class CheckInAndOutPage implements OnInit {
 
   // set check time in storage
   // status: checkIn/checkOut; time: checkIn/checkOut time
-  async storeTime(status: string, time: string) {
-    this.getTime();
-    const checkStatus = status;
-    const checkTime = time;
-    const item = {
-      status: checkStatus,
-      time: checkTime
-    };
-    this.checkList.push(item);
-    await Storage.set({
-      key: 'checkHistory',
-      value: JSON.stringify(this.checkList)
-    });
-    }
-  async getTime() {
-    const ret = await Storage.get({ key: 'checkHistory' });
+  // async storeTime(status: string, time: string) {
+  //   this.getTime();
+  //   const checkStatus = status;
+  //   const checkTime = time;
+  //   const item = {
+  //     status: checkStatus,
+  //     time: checkTime
+  //   };
+  //   this.checkList.push(item);
+  //   await Storage.set({
+  //     key: 'checkHistory',
+  //     value: JSON.stringify(this.checkList)
+  //   });
+  //   }
+  async getUserId() {
+    const ret = await Storage.get({ key: 'userId' });
     const storageData = JSON.parse(ret.value);
     if (storageData) {
       return storageData;
     } else {
-     return [];
+     return null;
     }
   }
 }
