@@ -64,25 +64,25 @@ export class CheckInAndOutPage implements OnInit {
     }
 
     checkInFilter(isPositionValid: boolean) {
-      let lastCheckIn: string;
       this.logModel.LogType = 0;
       this.logModel.CreatedAt = moment.utc().format();
-      let isCheckInTimeValid = this.checkTimeFilter(0);
-      if (isPositionValid && isCheckInTimeValid) {
-        // this.storeTime('checkIn', moment().format('MMMM Do YYYY, h:mm:ss a'));
-        // successfully checkIn
-        this.generalService.addLoginLog(this.logModel).subscribe(
-          (res) => {
-            console.log(res);
-            this.checkInFeedback(1);
-          }, (error) => {
-            console.log(error);
-          }
-        );
-      }
       if (!isPositionValid) {
         this.checkInFeedback(3);
+        return;
       }
+      this.checkTimeFilter(0).then((result) => {
+          // successfully checkIn
+          this.generalService.addLoginLog(this.logModel).subscribe(
+            (res) => {
+              console.log(res);
+              this.checkInFeedback(1);
+            }, (error) => {
+              console.log(error);
+            }
+          );
+      }, (error) => {
+        console.log(error);
+      });
     }
 
     // find the latest checkIn date and compare with the current time, if <1 day, case 5
@@ -90,28 +90,60 @@ export class CheckInAndOutPage implements OnInit {
     // find the latest checkOut date and compare with the current time, if <1 day, case 6
 
      // find the latest check record and compare with the current time, if >1 day, case 7
-    checkTimeFilter(status: number) {
-      this.generalService.addLoginLog(status).subscribe(
-        (res) => {
-        const lackCheckInTime = res['Data'].CreatedAt;
-        lackCheckInTime.diff(moment.utc().format(), 'days');
-        if (lackCheckInTime > 1) {
-          return true;
-        } else {
-          this.checkInFeedback(5);
-          return false;
+
+    //  *0: checkIn 1: checkOut 2: checkOut/checkIn
+    checkTimeFilter(status: number): Promise<boolean> {
+      return new Promise((resolve, reject) => {
+        // get the last check in time
+        if (status === 0 || status === 1) {
+          this.generalService.getCheckDetail(status).subscribe(
+            (res) => {
+              console.log(res);
+              const lackCheckInTime = res['Data'].CreatedAt;
+              const diffTime = Math.abs( moment(lackCheckInTime).diff(moment.utc().format(), 'days', true));
+              if (diffTime > 1) {
+                resolve(true);
+              }
+              if (diffTime < 1) {
+                status === 0 ? this.checkInFeedback(5) : this.checkInFeedback(6);
+                reject('time error');
+              }
+            }, (error) => {
+              reject(error);
+          });
         }
-      }, (error) => {
-        return false;
-        console.log(error);
+        if (status === 2) {
+          this.generalService.getCheckDetail(0).subscribe(
+            (res) => {
+              const lackCheckInTime = res['Data'].CreatedAt;
+              const diffTime = Math.abs( moment(lackCheckInTime).diff(moment.utc().format(), 'days', true));
+              if (diffTime < 1) {
+                resolve(true);
+              } else {
+                reject();
+              }
+            }
+          );
+        }
       });
-      return true;
     }
     checkOutFilter(isPositionValid: boolean) {
-      this.logModel.LogType = 0;
+      this.logModel.LogType = 1;
       this.logModel.CreatedAt = moment.utc().format();
-      if (isPositionValid) {
-        // successfully checkOut
+      if (!isPositionValid) {
+        this.checkInFeedback(4);
+        return;
+      }
+      // check case 7
+      this.checkTimeFilter(2).then((result) => {
+        // successful check
+        // check case 6
+        return this.checkTimeFilter(1);
+        // failed check
+      }, (error) => {
+        this.checkInFeedback(7);
+        throw new Error ('checkInFailed');
+      }).then((result) => {
         this.generalService.addLoginLog(this.logModel).subscribe(
           (res) => {
             console.log(res);
@@ -120,12 +152,25 @@ export class CheckInAndOutPage implements OnInit {
             console.log(error);
           }
         );
+      }, (error) => {
+        console.log(error);
+      });
 
-      }
-      if (!isPositionValid) {
-        this.checkInFeedback(4);
-      }
-
+      // this.checkTimeFilter(1).then((result) => {
+      //   if (isPositionValid && result) {
+      //     // todo: add addLoginLog to a separate function
+      //     this.generalService.addLoginLog(this.logModel).subscribe(
+      //       (res) => {
+      //         console.log(res);
+      //         this.checkInFeedback(2);
+      //       }, (error) => {
+      //         console.log(error);
+      //       }
+      //     );
+      //   }
+      // }, (error) => {
+      //   console.log(error);
+      // });
     }
 
     // TODO always return true
@@ -192,7 +237,6 @@ export class CheckInAndOutPage implements OnInit {
       });
       toast.present();
     }
-
     deleteCheckInHistory(i: number) {
       console.log('i', i);
       this.checkInHistory.splice(i, 1);
@@ -201,30 +245,13 @@ export class CheckInAndOutPage implements OnInit {
       console.log('i', i);
       this.checkOutHistory.splice(i, 1);
     }
-
-  // set check time in storage
-  // status: checkIn/checkOut; time: checkIn/checkOut time
-  // async storeTime(status: string, time: string) {
-  //   this.getTime();
-  //   const checkStatus = status;
-  //   const checkTime = time;
-  //   const item = {
-  //     status: checkStatus,
-  //     time: checkTime
-  //   };
-  //   this.checkList.push(item);
-  //   await Storage.set({
-  //     key: 'checkHistory',
-  //     value: JSON.stringify(this.checkList)
-  //   });
-  //   }
-  async getUserId() {
-    const ret = await Storage.get({ key: 'userId' });
-    const storageData = JSON.parse(ret.value);
-    if (storageData) {
-      return storageData;
-    } else {
-     return null;
+    async getUserId() {
+      const ret = await Storage.get({ key: 'userId' });
+      const storageData = JSON.parse(ret.value);
+      if (storageData) {
+        return storageData;
+      } else {
+      return null;
+      }
     }
-  }
 }
