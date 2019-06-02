@@ -26,7 +26,6 @@ export class CheckInAndOutPage implements OnInit {
     CreatedAt: null,
     OrgId: null
   };
-  isPositionValid: boolean;
   constructor(
     private geolocation: Geolocation,
     private route: ActivatedRoute,
@@ -41,10 +40,12 @@ export class CheckInAndOutPage implements OnInit {
       }
     );
     this.getUserId().then( data => this.logModel.UserId = data);
-    this.checkLocation(0, 0);
   }
 
   async checkMain(action: string) {
+      // const positionArray = [-36.8871300, 174.7119770];
+      // const positionArray = [-36.8791400, 174.7760660];
+      // const positionArray = [-36.8459830, 174.7659620];
       const positionArray = [];
       // Get current user position
       await this.geolocation.getCurrentPosition({enableHighAccuracy: true}).then((res) => {
@@ -55,20 +56,24 @@ export class CheckInAndOutPage implements OnInit {
       }).catch((error) => {
         console.log(error);
       });
-
-      // const isPositionValid = this.checkLocation(positionArray[0], positionArray[1]);
-      if (action === 'In') {
-        this.checkInFilter();
-      }
-      if (action === 'Out') {
-        this.checkOutFilter();
-      }
+      let isPositionValid;
+      this.checkLocation(positionArray[0], positionArray[1]).then(
+        (res) => isPositionValid = res,
+        (error) => isPositionValid = error)
+        .then(() => {
+          if (action === 'In') {
+            this.checkInFilter(isPositionValid);
+          }
+          if (action === 'Out') {
+            this.checkOutFilter(isPositionValid);
+          }
+        });
     }
 
-    checkInFilter() {
+    checkInFilter(isPositionValid: boolean) {
       this.logModel.LogType = 0;
       this.logModel.CreatedAt = moment.utc().format();
-      if (!this.isPositionValid) {
+      if (!isPositionValid) {
         this.checkInFeedback(3);
         return;
       }
@@ -93,7 +98,8 @@ export class CheckInAndOutPage implements OnInit {
 
      // find the latest check record and compare with the current time, if >1 day, case 7
 
-     // todo: if try to check out in a different location
+     // TODO: if try to check out in a different location
+     // TODO: try to checkIn checkOut multiple times in one day
 
     //  *0: checkIn 1: checkOut 2: checkOut/checkIn
     checkTimeFilter(status: number): Promise<boolean> {
@@ -102,7 +108,6 @@ export class CheckInAndOutPage implements OnInit {
         if (status === 0 || status === 1) {
           this.generalService.getCheckDetail(status).subscribe(
             (res) => {
-              console.log(res);
               const lackCheckInTime = res['Data'].CreatedAt;
               const diffTime = Math.abs( moment(lackCheckInTime).diff(moment.utc().format(), 'days', true));
               if (diffTime > 1) {
@@ -131,10 +136,10 @@ export class CheckInAndOutPage implements OnInit {
         }
       });
     }
-    checkOutFilter() {
+    checkOutFilter(isPositionValid: boolean) {
       this.logModel.LogType = 1;
       this.logModel.CreatedAt = moment.utc().format();
-      if (!this.isPositionValid) {
+      if (!isPositionValid) {
         this.checkInFeedback(4);
         return;
       }
@@ -177,32 +182,43 @@ export class CheckInAndOutPage implements OnInit {
       // });
     }
 
-    // TODO always return true
-    checkLocation(x, y) {
-      this.generalService.getOrgs().subscribe(
-        (res) => {
-          res['Data'].forEach(element => {
-            const orgX = element.localtion_x;
-            const orgY = element.localtion_y;
-            const R = 6371;
-            const dx = (orgX - x) * Math.PI / 180 ;
-            const dy = (orgY - y) * Math.PI / 180 ;
-            const a = Math.sin(dx / 2) * Math.sin(dx / 2) +
-            Math.cos(x * Math.PI / 180) * Math.cos(0 * Math.PI / 180) *
-            Math.sin(dy / 2) * Math.sin(dy / 2);
-            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-            const distance = R * c;
-            this.awayDistance = distance * 1000;
-            console.log(`${distance * 1000} metre`);
-            if (this.awayDistance < 1500) {
-              this.isPositionValid = true;
-              this.logModel.OrgId = element.OrgId;
-              console.log(`Successfully checked at ${element.OrgName}`);
-              return;
-            }}
-          );
-          this.isPositionValid = false;
-        });
+    checkLocation(x: number, y: number): Promise<boolean> {
+      return new Promise((resolve, reject) => {
+        this.generalService.getOrgs().subscribe(
+          (res) => {
+            console.log(res);
+            for (const element of res['Data']) {
+              const orgX = element.LocaltionX;
+              const orgY = element.LocaltionY;
+              if (orgX === x && orgY === y) {
+                this.logModel.OrgId = element.OrgId;
+                console.log(`Successfully checked at ${element.OrgName}`);
+                resolve(true);
+                return;
+              }
+              const R = 6371;
+              const dx = (orgX - x) * Math.PI / 180 ;
+              const dy = (orgY - y) * Math.PI / 180 ;
+              const a = Math.sin(dx / 2) * Math.sin(dx / 2) +
+              Math.cos(x * Math.PI / 180) * Math.cos(0 * Math.PI / 180) *
+              Math.sin(dy / 2) * Math.sin(dy / 2);
+              const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+              const distance = R * c;
+              this.awayDistance = distance * 1000;
+              // console.log(`${distance * 1000} metre`);
+              if (this.awayDistance < 1500) {
+                this.logModel.OrgId = element.OrgId;
+                console.log(`Successfully checked at ${element.OrgName}`);
+                resolve(true);
+                return;
+              }
+            }
+            reject(false);
+          }, (error) => {
+            console.log(error);
+            reject(false);
+          });
+      });
     }
 
     feedbackMessage(status: number): string {

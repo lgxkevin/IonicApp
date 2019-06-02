@@ -17,7 +17,7 @@ export class GeneralService {
   }
 
   addLoginLog(log) {
-    return this.http.post(this.baseUrl + 'MobileLoginLogsggg', log);
+    return this.http.post(this.baseUrl + 'MobileLoginLogs', log);
   }
   getOrgs() {
     return this.http.get(this.baseUrl + 'Orgs');
