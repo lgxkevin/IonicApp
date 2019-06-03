@@ -15,14 +15,20 @@ export class ChatroomComponent implements OnInit {
 
   ngOnInit() {
     this.chatService.startConnection();
-    this.chatService.addTransferData();
+    this.chatService.addTransferDataListener();
     this.startHttpRequest();
+    this.chatService.addBroadcastChatDataListener();
   }
 
   startHttpRequest() {
     this.http.get('http://localhost:5000/api/chat').subscribe(res => {
       console.log('res:', res);
     });
+  }
+
+  chatClicked(e) {
+    console.log(e);
+    this.chatService.broadcastChatData();
   }
 
 }
