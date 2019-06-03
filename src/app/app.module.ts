@@ -10,28 +10,31 @@ import { StatusBar } from '@ionic-native/status-bar/ngx';
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
 import { MenuPage } from '../app/menu/menu.page';
+import { ChatroomComponent } from './chatroom/chatroom.component';
 
 // services
 import { GeneralService } from '../app/service/general.service';
 
 @NgModule({
-  declarations: [
+   declarations: [
       AppComponent,
-      MenuPage
-  ],
-  entryComponents: [],
-  imports: [
-    BrowserModule,
-    IonicModule.forRoot(),
-    AppRoutingModule,
-    HttpClientModule
-  ],
-  providers: [
-    StatusBar,
-    SplashScreen,
-    { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
-    GeneralService
-  ],
-  bootstrap: [AppComponent]
+      MenuPage,
+      ChatroomComponent
+   ],
+   entryComponents: [],
+   imports: [
+      BrowserModule,
+      IonicModule.forRoot(),
+      AppRoutingModule,
+      HttpClientModule
+   ],
+   providers: [
+      StatusBar,
+      SplashScreen,
+      // provide
+   ],
+   bootstrap: [
+      AppComponent
+   ]
 })
 export class AppModule {}
