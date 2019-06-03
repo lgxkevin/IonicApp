@@ -3,6 +3,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { RouteReuseStrategy } from '@angular/router';
 import { HttpClientModule } from '@angular/common/http';
 
+
 import { IonicModule, IonicRouteStrategy } from '@ionic/angular';
 import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
@@ -26,7 +27,7 @@ import { GeneralService } from '../app/service/general.service';
       BrowserModule,
       IonicModule.forRoot(),
       AppRoutingModule,
-      HttpClientModule
+      HttpClientModule,
    ],
    providers: [
       StatusBar,
