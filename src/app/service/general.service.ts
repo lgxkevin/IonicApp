@@ -12,6 +12,12 @@ export class GeneralService {
   userLogin(user) {
     return this.http.post(this.baseUrl + 'login', user);
   }
+  getLoginLog() {
+    return this.http.get(this.baseUrl + 'MobileLoginLogs');
+  }
+  getRecentLoginLog() {
+    return this.http.get(this.baseUrl + 'MobileLoginLogs/GetRecentLoginLog');
+  }
   getCheckDetail(status: number) {
     return this.http.get(this.baseUrl + 'MobileLoginLogs/GetLastCheck/' + status);
   }

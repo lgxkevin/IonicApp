@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { RouteReuseStrategy } from '@angular/router';
 import { HttpClientModule } from '@angular/common/http';
+import { FormsModule } from '@angular/forms';
 
 
 import { IonicModule, IonicRouteStrategy } from '@ionic/angular';
@@ -28,6 +29,7 @@ import { GeneralService } from '../app/service/general.service';
       IonicModule.forRoot(),
       AppRoutingModule,
       HttpClientModule,
+      FormsModule
    ],
    providers: [
       StatusBar,

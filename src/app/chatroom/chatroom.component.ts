@@ -8,27 +8,33 @@ import { HttpClient } from '@angular/common/http';
   styleUrls: ['./chatroom.component.css']
 })
 export class ChatroomComponent implements OnInit {
+  nick = '';
+  message = '';
+  messages = [];
   constructor(
     public chatService: ChatService,
     private http: HttpClient
     ) { }
 
   ngOnInit() {
+    this.nick = window.prompt('Your name:', 'Emily');
+
     this.chatService.startConnection();
-    this.chatService.addTransferDataListener();
-    this.startHttpRequest();
-    this.chatService.addBroadcastChatDataListener();
+    // this.chatService.addTransferDataListener();
+    // this.startHttpRequest();
+    this.chatService.listenMessage();
   }
 
-  startHttpRequest() {
-    this.http.get('http://localhost:5000/api/chat').subscribe(res => {
-      console.log('res:', res);
-    });
-  }
+  // startHttpRequest() {
+  //   this.http.get('http://localhost:5000/api/chat').subscribe(res => {
+  //     console.log('res:', res);
+  //   });
+  // }
 
   chatClicked(e) {
     console.log(e);
-    this.chatService.broadcastChatData();
+    this.chatService.sendMessage(this.nick, this.message);
+    this.messages = this.chatService.messages;
   }
 
 }

@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { ToastController } from '@ionic/angular';
 import {GeneralService} from '../service/general.service';
 import { Plugins } from '@capacitor/core';
-import { JsonPipe } from '@angular/common';
+import * as moment from 'moment';
 
 const { Storage }  = Plugins;
 
@@ -16,6 +16,9 @@ export class HomePage {
   username: string;
   password: string;
   isLoginSuccess: boolean;
+  loginLog: any;
+  checkInMessage: string;
+  checkOutMessage: string;
   constructor(
     public toastController: ToastController,
     public generalService: GeneralService
@@ -24,8 +27,15 @@ export class HomePage {
     this.getUserId().then((data) => {
       if (data) {
         this.isLoginSuccess = true;
+        this.generalService.getRecentLoginLog().subscribe( (res) => {
+          this.loginLog = res['Data'];
+          console.log(this.loginLog);
+        }, (error) => {
+          console.log(error);
+        });
       }
     });
+    this.checkNotice();
   }
 
   loginCheck() {
@@ -72,5 +82,22 @@ export class HomePage {
     } else {
       return null;
     }
+  }
+  checkNotice() {
+    // get check in detail
+    this.generalService.getCheckDetail(0).subscribe((res) => {
+      const lackCheckInTime = res['Data'].CreatedAt;
+      this.checkInMessage = `Last check in at ${moment(lackCheckInTime).fromNow()}`;
+    }, (error) => {
+      console.log(error);
+    });
+    // get check out detail
+    this.generalService.getCheckDetail(1).subscribe((res) => {
+      const lackCheckOutTime = res['Data'].CreatedAt;
+      this.checkOutMessage = `Checked out today at ${moment(lackCheckOutTime).fromNow()}`;
+    }, (error) => {
+      console.log(error);
+    });
+
   }
   }

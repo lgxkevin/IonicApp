@@ -42,7 +42,7 @@
               <ion-card-title color = 'secondary'>Check out</ion-card-title>
             </ion-card-header>
             <ion-card-content>
-              You checked in today at 2:00 PM
+              <span *ngIf="checkInMessage">{{checkInMessage}}</span>
             </ion-card-content>
             <ion-card-content color = 'dark' routerLink = '/checkOut'>
                 Go to check out <ion-icon name="arrow-forward"></ion-icon>
@@ -55,13 +55,27 @@
               <ion-card-title color = 'Dark'>Check in</ion-card-title>
             </ion-card-header>
             <ion-card-content>
-              You checked out yesterday at 5:00 PM
+              <span *ngIf="checkOutMessage">{{checkOutMessage}}</span>
             </ion-card-content>
             <ion-card-content color = 'dark' routerLink = '/checkIn'>
                 Go to check in <ion-icon name="arrow-forward"></ion-icon>
               </ion-card-content>
           </ion-card>
     </ion-col>
+    <ion-col size= '12'>
+      <ion-card>
+          <ion-card-header>
+            <ion-card-title color = 'tertiary'>Check History</ion-card-title>
+          </ion-card-header>
+          <ion-card-content *ngIf="loginLog ">
+            <div *ngFor="let check of loginLog">
+              <span *ngIf="check.LogType === 0">Check in at </span>
+              <span *ngIf="check.LogType === 1">Check out at </span>
+              <span *ngIf="check.Org">{{check.Org.OrgName}}</span> at {{check.CreatedAt | date:'medium'}}
+            </div>
+          </ion-card-content>
+        </ion-card>
+  </ion-col>
     <ion-col size= '12'>
         <ion-card>
             <ion-card-header>

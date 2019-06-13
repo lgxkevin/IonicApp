@@ -23,7 +23,7 @@ export class CheckInAndOutPage implements OnInit {
   logModel = {
     UserId: null,
     LogType: null,
-    CreatedAt: null,
+    CreatedAt: '',
     OrgId: null
   };
   constructor(
@@ -109,8 +109,10 @@ export class CheckInAndOutPage implements OnInit {
           this.generalService.getCheckDetail(status).subscribe(
             (res) => {
               const lackCheckInTime = res['Data'].CreatedAt;
-              const diffTime = Math.abs( moment(lackCheckInTime).diff(moment.utc().format(), 'days', true));
-              if (diffTime > 1) {
+              const diffTime = Math.abs( moment(moment(lackCheckInTime).toArray().slice(0, 3))
+              .diff(moment().toArray().slice(0, 3), 'days', true));
+              console.log(diffTime);
+              if (diffTime >= 1) {
                 resolve(true);
               }
               if (diffTime < 1) {
@@ -125,7 +127,7 @@ export class CheckInAndOutPage implements OnInit {
           this.generalService.getCheckDetail(0).subscribe(
             (res) => {
               const lackCheckInTime = res['Data'].CreatedAt;
-              const diffTime = Math.abs( moment(lackCheckInTime).diff(moment.utc().format(), 'days', true));
+              const diffTime = Math.abs( moment(lackCheckInTime).diff(moment().format(), 'days', true));
               if (diffTime < 1) {
                 resolve(true);
               } else {
