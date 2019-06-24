@@ -39,26 +39,26 @@
     <ion-col size= '6'>
         <ion-card>
             <ion-card-header>
-              <ion-card-title color = 'secondary'>Check out</ion-card-title>
+              <ion-card-title color = 'secondary'>Check in</ion-card-title>
             </ion-card-header>
             <ion-card-content>
               <span *ngIf="checkInMessage">{{checkInMessage}}</span>
             </ion-card-content>
             <ion-card-content color = 'dark' routerLink = '/checkOut'>
-                Go to check out <ion-icon name="arrow-forward"></ion-icon>
+                Go to check in <ion-icon name="arrow-forward"></ion-icon>
               </ion-card-content>
           </ion-card>
     </ion-col>
     <ion-col size= '6'>
         <ion-card>
             <ion-card-header>
-              <ion-card-title color = 'Dark'>Check in</ion-card-title>
+              <ion-card-title color = 'Dark'>Check out</ion-card-title>
             </ion-card-header>
             <ion-card-content>
               <span *ngIf="checkOutMessage">{{checkOutMessage}}</span>
             </ion-card-content>
             <ion-card-content color = 'dark' routerLink = '/checkIn'>
-                Go to check in <ion-icon name="arrow-forward"></ion-icon>
+                Go to check out <ion-icon name="arrow-forward"></ion-icon>
               </ion-card-content>
           </ion-card>
     </ion-col>

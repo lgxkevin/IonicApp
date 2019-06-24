@@ -94,7 +94,7 @@ export class HomePage {
     // get check out detail
     this.generalService.getCheckDetail(1).subscribe((res) => {
       const lackCheckOutTime = res['Data'].CreatedAt;
-      this.checkOutMessage = `Checked out today at ${moment(lackCheckOutTime).fromNow()}`;
+      this.checkOutMessage = `Checked out at ${moment(lackCheckOutTime).fromNow()}`;
     }, (error) => {
       console.log(error);
     });

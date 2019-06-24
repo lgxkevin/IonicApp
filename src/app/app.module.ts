@@ -16,12 +16,14 @@ import { ChatroomComponent } from './chatroom/chatroom.component';
 
 // services
 import { GeneralService } from '../app/service/general.service';
+import { ChatWithComponent } from './chatWith/chatWith.component';
 
 @NgModule({
    declarations: [
       AppComponent,
       MenuPage,
-      ChatroomComponent
+      ChatroomComponent,
+      ChatWithComponent
    ],
    entryComponents: [],
    imports: [
@@ -34,7 +36,7 @@ import { GeneralService } from '../app/service/general.service';
    providers: [
       StatusBar,
       SplashScreen,
-      // provide
+      //provide
    ],
    bootstrap: [
       AppComponent

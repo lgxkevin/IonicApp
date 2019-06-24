@@ -31,9 +31,12 @@ export class ChatroomComponent implements OnInit {
   //   });
   // }
 
-  chatClicked(e) {
-    console.log(e);
-    this.chatService.sendMessage(this.nick, this.message);
+  chatClicked() {
+    this.chatService.sendMessage(this.nick, this.message).subscribe((res) => {
+      console.log(res);
+    }, (error) => {
+      console.log(error);
+    });
     this.messages = this.chatService.messages;
   }
 

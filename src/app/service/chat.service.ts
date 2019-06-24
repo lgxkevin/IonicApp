@@ -1,18 +1,28 @@
 import { Injectable } from '@angular/core';
 import * as signalR from '@aspnet/signalr';
+import { environment } from '../../environments/environment.prod';
+import { HttpClient } from '@angular/common/http';
+import * as moment from 'moment';
+
 
 @Injectable({
   providedIn: 'root'
 })
 export class ChatService {
+  private baseUrl: any = environment.baseUrl;
+
   // hold the data fetched from the server
   data: string;
   broadcastData: string;
 
-  messages: string[] = [];
+  messages = [];
+  messageBody = {
+    UserId: 3,
+    MessageBody: 'Hi',
+  }
 
   public hubConnection: signalR.HubConnection;
-  constructor() { }
+  constructor(private http: HttpClient) { }
 
   // build and start connection
   startConnection() {
@@ -33,15 +43,25 @@ export class ChatService {
   // }
   // send data to our hub endpoint
   sendMessage(name: string, message: string) {
-    this.hubConnection.invoke('Broadcastchatdata', name, message )
+    this.hubConnection.invoke('SendMessage', name, message )
     .catch((error) => console.log(error));
+    this.messageBody.MessageBody = message;
+    this.messageBody.UserId = 3;
+    return this.http.post(this.baseUrl + 'Chat', this.messageBody);
   }
-  // listen on the broadcastchatdata event
+  // listen on the SendMessage event
   listenMessage() {
-    this.hubConnection.on('Broadcastchatdata', (name: string, message: string) => {
+    this.hubConnection.on('SendMessage', (name: string, message: string) => {
       const text = `${name}: ${message}`;
       this.messages.push(text);
       console.log(this.messages);
     });
   }
+  // sendMessage(name:string, message: string) {
+  //   this.messageBody.Name = name;
+  //   this.messageBody.Message = message;
+  //   console.log(this.messageBody);
+  //   return this.http.post(this.baseUrl + 'Chat', this.messageBody);
+  // }
+
 }
