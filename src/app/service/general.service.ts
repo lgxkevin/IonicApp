@@ -28,4 +28,13 @@ export class GeneralService {
   getOrgs() {
     return this.http.get(this.baseUrl + 'Orgs');
   }
+  getTeachers(id: number) {
+    return this.http.get(this.baseUrl + 'Chat/GetRelatedTeacher/' + id);
+  }
+  getStudents(id: number) {
+    return this.http.get(this.baseUrl + 'Chat/GetRelatedStudent/' + id);
+  }
+  getUser(id: number){
+    
+  }
 }

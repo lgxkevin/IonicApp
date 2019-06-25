@@ -1,3 +1,15 @@
-<p>
-  chatWith works!
+<p *ngIf="userDetail.role === 'learner'">
+  Online teachers
 </p>
+<p *ngIf="userDetail.role === 'teacher'">
+  Online students
+</p>
+<div *ngIf="peopleOnline">
+  <div *ngFor="let people of peopleOnline">
+    <a [routerLink]="[ '/chatroom', people.UserId ]" *ngIf="people.UserId">
+      <br/>
+      <span>{{ people.FirstName }}, {{ people.LastName }}</span>
+      <br/>
+    </a>
+  </div>
+</div>

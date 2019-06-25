@@ -43,15 +43,20 @@ export class HomePage {
       username: this.username,
       password: this.password
     };
-    console.log(`Username: ${this.username},password: ${this.password}`);
     this.generalService.userLogin(user).subscribe(
       (res) => {
+        console.log('Detail,', res['Data'].userdetails);
         this.isLoginSuccess = true;
         this.presentToast('Login successfully');
         Storage.set({
           key: 'userId',
           value: JSON.stringify(res['Data'].userid)
         });
+        Storage.set({
+          key: 'role',
+          value: JSON.stringify(res['Data'].userdetails.position)
+        });
+
       }, (error) => {
         console.log(error);
         this.isLoginSuccess = false;
@@ -83,6 +88,8 @@ export class HomePage {
       return null;
     }
   }
+
+
   checkNotice() {
     // get check in detail
     this.generalService.getCheckDetail(0).subscribe((res) => {

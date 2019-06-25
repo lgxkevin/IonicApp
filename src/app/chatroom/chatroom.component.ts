@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { ChatService } from '../service/chat.service';
 import { HttpClient } from '@angular/common/http';
+import { ActivatedRoute } from '@angular/router'
+
 
 @Component({
   selector: 'app-chatroom',
@@ -11,12 +13,19 @@ export class ChatroomComponent implements OnInit {
   nick = '';
   message = '';
   messages = [];
+  userId: number;
   constructor(
     public chatService: ChatService,
-    private http: HttpClient
+    private http: HttpClient,
+    private route: ActivatedRoute
     ) { }
 
   ngOnInit() {
+    this.route.params.subscribe( params => {
+      this.userId = params['id'];
+    });
+
+    
     this.nick = window.prompt('Your name:', 'Emily');
 
     this.chatService.startConnection();
