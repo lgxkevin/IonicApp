@@ -34,7 +34,5 @@ export class GeneralService {
   getStudents(id: number) {
     return this.http.get(this.baseUrl + 'Chat/GetRelatedStudent/' + id);
   }
-  getUser(id: number){
-    
-  }
+
 }

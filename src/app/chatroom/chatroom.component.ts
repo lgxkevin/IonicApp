@@ -1,8 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { ChatService } from '../service/chat.service';
 import { HttpClient } from '@angular/common/http';
-import { ActivatedRoute } from '@angular/router'
+import { ActivatedRoute } from '@angular/router';
+import { Plugins } from '@capacitor/core';
 
+const { Storage }  = Plugins;
 
 @Component({
   selector: 'app-chatroom',
@@ -13,7 +15,9 @@ export class ChatroomComponent implements OnInit {
   nick = '';
   message = '';
   messages = [];
+  chatUserId: number;
   userId: number;
+  chatGroupId: string;
   constructor(
     public chatService: ChatService,
     private http: HttpClient,
@@ -22,10 +26,9 @@ export class ChatroomComponent implements OnInit {
 
   ngOnInit() {
     this.route.params.subscribe( params => {
-      this.userId = params['id'];
+      this.chatUserId = params['id'];
     });
 
-    
     this.nick = window.prompt('Your name:', 'Emily');
 
     this.chatService.startConnection();
@@ -34,11 +37,10 @@ export class ChatroomComponent implements OnInit {
     this.chatService.listenMessage();
   }
 
-  // startHttpRequest() {
-  //   this.http.get('http://localhost:5000/api/chat').subscribe(res => {
-  //     console.log('res:', res);
-  //   });
-  // }
+  async getUserId() {
+    const userId = await Storage.get({ key: 'userId' });
+    this.userId = JSON.parse(userId.value);
+  }
 
   chatClicked() {
     this.chatService.sendMessage(this.nick, this.message).subscribe((res) => {
