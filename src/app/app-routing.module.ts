@@ -10,6 +10,7 @@ const routes: Routes = [
   { path: 'checkIn', loadChildren: './check-in-and-out/check-in-and-out.module#CheckInAndOutPageModule', data : {some_data : 'checkIn'} },
   { path: 'checkOut', loadChildren: './check-in-and-out/check-in-and-out.module#CheckInAndOutPageModule', data : {some_data : 'checkOut'}},
   { path: 'chatroom/:id', component: ChatroomComponent},
+  { path: 'chatroom', component: ChatroomComponent},
   { path: 'chatWith', component: ChatWithComponent}
 ];
 

@@ -19,15 +19,15 @@ export class ChatService {
   messageBody = {
     UserId: 3,
     MessageBody: 'Hi',
-  }
+  };
 
   public hubConnection: signalR.HubConnection;
   constructor(private http: HttpClient) { }
 
   // build and start connection
-  startConnection() {
+  startConnection(name: string) {
     this.hubConnection = new signalR.HubConnectionBuilder()
-      .withUrl('http://localhost:5000/chat')
+      .withUrl('http://localhost:5000/chat?userId=' + name)
       .build();
     this.hubConnection
       .start()
@@ -42,19 +42,20 @@ export class ChatService {
   //   });
   // }
   // send data to our hub endpoint
-  sendMessage(name: string, message: string) {
-    this.hubConnection.invoke('SendMessage', name, message )
+  sendMessage(chatMessageModel) {
+    this.hubConnection.invoke('SendMessageOneToOne', chatMessageModel.MessageBody, chatMessageModel.MessageBody)
     .catch((error) => console.log(error));
-    this.messageBody.MessageBody = message;
-    this.messageBody.UserId = 3;
-    return this.http.post(this.baseUrl + 'Chat', this.messageBody);
+    // this.messageBody.MessageBody = chatMessageModel.MessageBody;
+    // this.messageBody.UserId = 3;
+    // return this.http.post(this.baseUrl + 'Chat', this.messageBody);
+    return this.http.post(this.baseUrl + 'Chat/TestMessage', chatMessageModel);
   }
   // listen on the SendMessage event
   listenMessage() {
-    this.hubConnection.on('SendMessage', (name: string, message: string) => {
+    this.hubConnection.on('SendMessageOneToOne', (name: string, message: string) => {
       const text = `${name}: ${message}`;
       this.messages.push(text);
-      console.log(this.messages);
+      console.log('New message');
     });
   }
   // sendMessage(name:string, message: string) {

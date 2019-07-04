@@ -18,6 +18,13 @@ export class ChatroomComponent implements OnInit {
   chatUserId: number;
   userId: number;
   chatGroupId: string;
+  chatMessageModel = {
+    ChatMessageId: 2,
+    ChatGroupId: 2,
+    MessageBody: '',
+    UserId: 2,
+    CreateAt: ''
+  };
   constructor(
     public chatService: ChatService,
     private http: HttpClient,
@@ -31,7 +38,7 @@ export class ChatroomComponent implements OnInit {
 
     this.nick = window.prompt('Your name:', 'Emily');
 
-    this.chatService.startConnection();
+    this.chatService.startConnection(this.nick);
     // this.chatService.addTransferDataListener();
     // this.startHttpRequest();
     this.chatService.listenMessage();
@@ -43,7 +50,8 @@ export class ChatroomComponent implements OnInit {
   }
 
   chatClicked() {
-    this.chatService.sendMessage(this.nick, this.message).subscribe((res) => {
+    this.chatMessageModel.MessageBody = this.message;
+    this.chatService.sendMessage(this.chatMessageModel).subscribe((res) => {
       console.log(res);
     }, (error) => {
       console.log(error);
