@@ -3,6 +3,8 @@ import { ChatService } from '../service/chat.service';
 import { HttpClient } from '@angular/common/http';
 import { ActivatedRoute } from '@angular/router';
 import { Plugins } from '@capacitor/core';
+import * as moment from 'moment';
+
 
 const { Storage }  = Plugins;
 
@@ -19,12 +21,12 @@ export class ChatroomComponent implements OnInit {
   userId: number;
   chatGroupId: string;
   chatMessageModel = {
-    ChatMessageId: 2,
-    ChatGroupId: 2,
-    MessageBody: '',
-    UserId: 2,
-    CreateAt: ''
-  };
+      ChatGroupId : null,
+      MessageBody : '',
+      SenderUserId : null,
+      ReceiverUserId : null,
+      CreateAt: ''
+    };
   constructor(
     public chatService: ChatService,
     private http: HttpClient,
@@ -50,7 +52,8 @@ export class ChatroomComponent implements OnInit {
   }
 
   chatClicked() {
-    this.chatMessageModel.MessageBody = this.message;
+    // this.chatMessageModel.MessageBody = this.message;
+    this.chatMessageModel.CreateAt = moment().format();
     this.chatService.sendMessage(this.chatMessageModel).subscribe((res) => {
       console.log(res);
     }, (error) => {

@@ -27,42 +27,33 @@ export class ChatService {
   // build and start connection
   startConnection(name: string) {
     this.hubConnection = new signalR.HubConnectionBuilder()
+
+      // add receiverId here
+      // * userId MUST be string *
+
       .withUrl('http://localhost:5000/chat?userId=' + name)
+      // .withUrl('http://45.76.123.59:5000/chat?userId=' + name)
       .build();
     this.hubConnection
       .start()
       .then(() => console.log('Connection started'))
       .catch(err => console.log('Error while starting connection: ' + err));
   }
-  // subscribe to the event Transferchatdata and accept data from the server with the data parameter
-  // addTransferDataListener() {
-  //   this.hubConnection.on('Transferchatdata', (data) => {
-  //     this.data = data;
-  //     console.log('data:', data);
-  //   });
-  // }
   // send data to our hub endpoint
   sendMessage(chatMessageModel) {
-    this.hubConnection.invoke('SendMessageOneToOne', chatMessageModel.MessageBody, chatMessageModel.MessageBody)
+    // send message here
+
+    this.hubConnection.invoke('SendMessageOneToOne', chatMessageModel)
     .catch((error) => console.log(error));
-    // this.messageBody.MessageBody = chatMessageModel.MessageBody;
-    // this.messageBody.UserId = 3;
-    // return this.http.post(this.baseUrl + 'Chat', this.messageBody);
-    return this.http.post(this.baseUrl + 'Chat/TestMessage', chatMessageModel);
+    return this.http.post(this.baseUrl + 'Chat', chatMessageModel);
+    // return this.http.post(this.baseUrl + 'Chat/TestMessage', chatMessageModel);
   }
   // listen on the SendMessage event
   listenMessage() {
-    this.hubConnection.on('SendMessageOneToOne', (name: string, message: string) => {
-      const text = `${name}: ${message}`;
-      this.messages.push(text);
-      console.log('New message');
+    this.hubConnection.on('SendMessageOneToOne', (res) => {
+      // const text = `${name}: ${message}`;
+      // this.messages.push(text);
+      console.log('New message', res);
     });
   }
-  // sendMessage(name:string, message: string) {
-  //   this.messageBody.Name = name;
-  //   this.messageBody.Message = message;
-  //   console.log(this.messageBody);
-  //   return this.http.post(this.baseUrl + 'Chat', this.messageBody);
-  // }
-
 }

@@ -15,7 +15,7 @@
     <form (ngSubmit)="chatClicked()" #chatForm="ngForm">
       <div>
         <label for="message">Message</label>
-        <input type="text" id="message" name="message" [(ngModel)]="message" required>
+        <input type="text" id="message" name="message" [(ngModel)]="chatMessageModel.MessageBody" required>
       </div>
       <button type="submit" id="sendmessage" [disabled]="!chatForm.valid">
         Send
