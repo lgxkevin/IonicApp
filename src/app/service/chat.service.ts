@@ -45,6 +45,8 @@ export class ChatService {
 
     this.hubConnection.invoke('SendMessageOneToOne', chatMessageModel)
     .catch((error) => console.log(error));
+
+    // add message in database
     return this.http.post(this.baseUrl + 'Chat', chatMessageModel);
     // return this.http.post(this.baseUrl + 'Chat/TestMessage', chatMessageModel);
   }
