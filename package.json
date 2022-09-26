@@ -22,7 +22,7 @@
     "@angular/router": "^7.2.2",
     "@aspnet/signalr": "^1.1.4",
     "@capacitor/android": "^1.0.0-beta.22",
-    "@capacitor/cli": "1.0.0-beta.22",
+    "@capacitor/cli": "1.5.3",
     "@capacitor/core": "1.0.0-beta.22",
     "@ionic-native/core": "^5.0.0",
     "@ionic-native/geolocation": "^5.5.0",
